@@ -22,3 +22,12 @@ target_include_directories(
     ${PROJECT_NAME}
     PUBLIC "."
 )
+
+#-------------------------------------------------------------------------------
+# TESTING
+#-------------------------------------------------------------------------------
+option(BUILD_TESTING "" OFF)
+if (BUILD_TESTING)
+    include(CTest)
+    add_subdirectory(test)
+endif ()
