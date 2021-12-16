@@ -13,6 +13,7 @@ extern "C"
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H
 
+
 /**
  * The size of a ring buffer.
  * Due to the design only <tt> RING_BUFFER_SIZE-1 </tt> items

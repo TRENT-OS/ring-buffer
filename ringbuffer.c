@@ -36,7 +36,7 @@ uint8_t ring_buffer_dequeue(ring_buffer_t *buffer, char *data) {
     /* No items */
     return 0;
   }
-  
+
   *data = buffer->buffer[buffer->tail_index];
   buffer->tail_index = ((buffer->tail_index + 1) & RING_BUFFER_MASK);
   return 1;
@@ -62,7 +62,7 @@ uint8_t ring_buffer_peek(ring_buffer_t *buffer, char *data, ring_buffer_size_t i
     /* No items at index */
     return 0;
   }
-  
+
   /* Add index to pointer */
   ring_buffer_size_t data_index = ((buffer->tail_index + index) & RING_BUFFER_MASK);
   *data = buffer->buffer[data_index];
