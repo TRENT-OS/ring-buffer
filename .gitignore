@@ -19,3 +19,7 @@
 
 # Documentation
 doc/
+
+# Build folder
+build/
+
