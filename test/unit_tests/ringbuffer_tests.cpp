@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <thread>
 
 #include "ringbuffer.h"
 
@@ -235,4 +236,108 @@ TEST_F(Test_RingBuffer, tail_chases_head)
             ASSERT_EQ(i, item);
         }
     }
+}
+
+TEST_F(Test_RingBuffer_full, head_chases_tail_concurrently)
+{
+    EXPECT_TRUE(ring_buffer_is_full(&ring_buffer));
+
+    const size_t iterations = 4096;
+
+    std::thread producer
+    {[this]
+        {
+            for(size_t i = (RING_BUFFER_SIZE - 1); i < iterations; i++)
+            {
+                if(ring_buffer_is_full(&ring_buffer))
+                {
+                    std::this_thread::yield();
+                    --i;
+                }
+                else
+                {
+                    ring_buffer_queue(
+                        &ring_buffer,
+                        (char)(i % (RING_BUFFER_SIZE - 1)));
+                }
+            }
+        }
+    };
+
+    std::thread consumer
+    {[this]
+        {
+            for(size_t i = 0; i < iterations; i++)
+            {
+                char item;
+                if(ring_buffer_dequeue(&ring_buffer, &item))
+                {
+                    EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
+                }
+                else
+                {
+                    std::this_thread::yield();
+                    --i;
+                }
+            }
+        }
+    };
+
+    producer.join();
+    consumer.join();
+
+    EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer))
+        << ring_buffer_num_items(&ring_buffer);
+}
+
+TEST_F(Test_RingBuffer, tail_chases_head_concurrently)
+{
+    EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer));
+
+    const size_t iterations = 4096;
+
+    std::thread producer
+    {[this]
+        {
+            for(size_t i = 0; i < iterations; i++)
+            {
+                if(ring_buffer_is_full(&ring_buffer))
+                {
+                    std::this_thread::yield();
+                    --i;
+                }
+                else
+                {
+                    ring_buffer_queue(
+                        &ring_buffer,
+                        (char)(i % (RING_BUFFER_SIZE - 1)));
+                }
+            }
+        }
+    };
+
+    std::thread consumer
+    {[this]
+        {
+            for(size_t i = 0; i < iterations; i++)
+            {
+                char item;
+                if(ring_buffer_dequeue(&ring_buffer, &item))
+                {
+                    EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
+                }
+                else
+                {
+                    std::this_thread::yield();
+                    --i;
+                }
+            }
+        }
+    };
+
+    producer.join();
+    consumer.join();
+
+    EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer))
+        << ring_buffer_num_items(&ring_buffer);
 }
