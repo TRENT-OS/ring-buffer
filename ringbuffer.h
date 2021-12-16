@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <inttypes.h>
 
 /**
@@ -130,3 +135,7 @@ inline ring_buffer_size_t ring_buffer_num_items(ring_buffer_t *buffer) {
 }
 
 #endif /* RINGBUFFER_H */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
