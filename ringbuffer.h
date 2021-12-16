@@ -22,24 +22,12 @@ extern "C"
 */
 #define RING_BUFFER_SIZE 128
 
-#if (RING_BUFFER_SIZE & (RING_BUFFER_SIZE - 1)) != 0
-#error "RING_BUFFER_SIZE must be a power of two"
-#endif
-
 /**
  * The type which is used to hold the size
  * and the indicies of the buffer.
  * Must be able to fit \c RING_BUFFER_SIZE .
  */
 typedef uint8_t ring_buffer_size_t;
-
-/**
- * Used as a modulo operator
- * as <tt> a % b = (a & (b − 1)) </tt>
- * where \c a is a positive index in the buffer and
- * \c b is the (power of two) size of the buffer.
- */
-#define RING_BUFFER_MASK (RING_BUFFER_SIZE-1)
 
 /**
  * Simplifies the use of <tt>struct ring_buffer_t</tt>.
@@ -123,7 +111,7 @@ inline uint8_t ring_buffer_is_empty(ring_buffer_t *buffer) {
  * @return 1 if full; 0 otherwise.
  */
 inline uint8_t ring_buffer_is_full(ring_buffer_t *buffer) {
-  return ((buffer->head_index - buffer->tail_index) & RING_BUFFER_MASK) == RING_BUFFER_MASK;
+  return ((buffer->head_index + 1) % RING_BUFFER_SIZE) == buffer->tail_index;
 }
 
 /**
@@ -132,7 +120,9 @@ inline uint8_t ring_buffer_is_full(ring_buffer_t *buffer) {
  * @return The number of items in the ring buffer.
  */
 inline ring_buffer_size_t ring_buffer_num_items(ring_buffer_t *buffer) {
-  return ((buffer->head_index - buffer->tail_index) & RING_BUFFER_MASK);
+    return (buffer->head_index >= buffer->tail_index)
+            ? buffer->head_index - buffer->tail_index
+            : RING_BUFFER_SIZE - buffer->tail_index + buffer->head_index;
 }
 
 #endif /* RINGBUFFER_H */
