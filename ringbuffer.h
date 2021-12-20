@@ -30,12 +30,12 @@ extern "C"
  * as well as metadata for the ring buffer.
  */
 typedef struct ring_buffer_t {
-  /** Buffer memory. */
-  uint8_t buffer[RING_BUFFER_SIZE];
   /** Index of tail. */
   size_t tail_index;
   /** Index of head. */
   size_t head_index;
+  /** Buffer memory. */
+  uint8_t buffer[RING_BUFFER_SIZE];
 } ring_buffer_t;
 
 /**
