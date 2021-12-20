@@ -68,7 +68,7 @@ size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data);
  * @param data A pointer to the array of bytes to place in the queue.
  * @param size The size of the array.
  */
-void ring_buffer_queue_arr(ring_buffer_t *buffer, const uint8_t *data, size_t size);
+void ring_buffer_queue_arr(ring_buffer_t *buffer, const void *data, size_t size);
 
 /**
  * Returns the oldest byte in a ring buffer.
@@ -85,7 +85,8 @@ size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data);
  * @param len The maximum number of bytes to return.
  * @return The number of bytes returned.
  */
-size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, uint8_t *data, size_t len);
+size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, void *data, size_t len);
+
 /**
  * Peeks a ring buffer, i.e. returns an element without removing it.
  * @param buffer The buffer from which the data should be returned.

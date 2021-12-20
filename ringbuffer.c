@@ -36,11 +36,11 @@ size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data) {
   return 1;
 }
 
-void ring_buffer_queue_arr(ring_buffer_t *buffer, const uint8_t *data, size_t size) {
+void ring_buffer_queue_arr(ring_buffer_t *buffer, const void *data, size_t size) {
   /* Add bytes; one by one */
   size_t i;
   for(i = 0; i < size; i++) {
-    ring_buffer_queue(buffer, data[i]);
+    ring_buffer_queue(buffer, ((uint8_t*)data)[i]);
   }
 }
 
@@ -55,7 +55,7 @@ size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data) {
   return 1;
 }
 
-size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, uint8_t *data, size_t len) {
+size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, void *data, size_t len) {
   if(ring_buffer_is_empty(buffer)) {
     /* No items */
     return 0;
