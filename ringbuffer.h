@@ -3,6 +3,7 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
 #include <inttypes.h>
 
 /**
@@ -22,12 +23,6 @@ extern "C"
 */
 #define RING_BUFFER_SIZE 128
 
-/**
- * The type which is used to hold the size
- * and the indicies of the buffer.
- * Must be able to fit \c RING_BUFFER_SIZE .
- */
-typedef uint8_t ring_buffer_size_t;
 
 /**
  * Simplifies the use of <tt>struct ring_buffer_t</tt>.
@@ -43,9 +38,9 @@ struct ring_buffer_t {
   /** Buffer memory. */
   char buffer[RING_BUFFER_SIZE];
   /** Index of tail. */
-  ring_buffer_size_t tail_index;
+  size_t tail_index;
   /** Index of head. */
-  ring_buffer_size_t head_index;
+  size_t head_index;
 };
 
 /**
@@ -68,7 +63,7 @@ void ring_buffer_queue(ring_buffer_t *buffer, char data);
  * @param data A pointer to the array of bytes to place in the queue.
  * @param size The size of the array.
  */
-void ring_buffer_queue_arr(ring_buffer_t *buffer, const char *data, ring_buffer_size_t size);
+void ring_buffer_queue_arr(ring_buffer_t *buffer, const char *data, size_t size);
 
 /**
  * Returns the oldest byte in a ring buffer.
@@ -85,7 +80,7 @@ uint8_t ring_buffer_dequeue(ring_buffer_t *buffer, char *data);
  * @param len The maximum number of bytes to return.
  * @return The number of bytes returned.
  */
-ring_buffer_size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, char *data, ring_buffer_size_t len);
+size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, char *data, size_t len);
 /**
  * Peeks a ring buffer, i.e. returns an element without removing it.
  * @param buffer The buffer from which the data should be returned.
@@ -93,7 +88,7 @@ ring_buffer_size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, char *data, ri
  * @param index The index to peek.
  * @return 1 if data was returned; 0 otherwise.
  */
-uint8_t ring_buffer_peek(ring_buffer_t *buffer, char *data, ring_buffer_size_t index);
+uint8_t ring_buffer_peek(ring_buffer_t *buffer, char *data, size_t index);
 
 
 /**
@@ -119,7 +114,7 @@ inline uint8_t ring_buffer_is_full(ring_buffer_t *buffer) {
  * @param buffer The buffer for which the number of items should be returned.
  * @return The number of items in the ring buffer.
  */
-inline ring_buffer_size_t ring_buffer_num_items(ring_buffer_t *buffer) {
+inline size_t ring_buffer_num_items(ring_buffer_t *buffer) {
     return (buffer->head_index >= buffer->tail_index)
             ? buffer->head_index - buffer->tail_index
             : RING_BUFFER_SIZE - buffer->tail_index + buffer->head_index;

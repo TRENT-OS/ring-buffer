@@ -85,7 +85,7 @@ TEST_F(Test_RingBuffer_filled, insert_100_items)
 
 TEST_F(Test_RingBuffer_filled, peek_3rd)
 {
-    const char thirdElementIdx = 3;
+    const size_t thirdElementIdx = 3;
     char item;
 
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
@@ -96,7 +96,7 @@ TEST_F(Test_RingBuffer_filled, peek_3rd)
 
 TEST_F(Test_RingBuffer_filled, peek_out_of_range)
 {
-    const char outOfRangeIdx = items_count;
+    const size_t outOfRangeIdx = items_count;
     char item;
 
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
