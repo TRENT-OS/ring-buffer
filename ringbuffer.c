@@ -69,7 +69,7 @@ size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index) {
   return 1;
 }
 
-extern inline uint8_t ring_buffer_is_empty(ring_buffer_t *buffer);
-extern inline uint8_t ring_buffer_is_full(ring_buffer_t *buffer);
+extern inline bool ring_buffer_is_empty(ring_buffer_t *buffer);
+extern inline bool ring_buffer_is_full(ring_buffer_t *buffer);
 extern inline size_t ring_buffer_num_items(ring_buffer_t *buffer);
 
