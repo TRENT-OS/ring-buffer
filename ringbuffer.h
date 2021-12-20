@@ -71,7 +71,7 @@ void ring_buffer_queue_arr(ring_buffer_t *buffer, const uint8_t *data, size_t si
  * @param data A pointer to the location at which the data should be placed.
  * @return 1 if data was returned; 0 otherwise.
  */
-uint8_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data);
+size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data);
 
 /**
  * Returns the <em>len</em> oldest bytes in a ring buffer.
@@ -88,8 +88,7 @@ size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, uint8_t *data, size_t len)
  * @param index The index to peek.
  * @return 1 if data was returned; 0 otherwise.
  */
-uint8_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index);
-
+size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index);
 
 /**
  * Returns whether a ring buffer is empty.
