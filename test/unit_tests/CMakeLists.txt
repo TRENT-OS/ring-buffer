@@ -12,14 +12,17 @@ project(ringbuffer_tests CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 #-------------------------------------------------------------------------------
+add_subdirectory(ring_buffers)
+
 add_executable("${PROJECT_NAME}_test"
+    ringbuffer_tests_Foo.cpp
     ringbuffer_tests_uint8_t.cpp
 )
 
 target_link_libraries("${PROJECT_NAME}_test"
     PRIVATE
         test_main
-        Ring-Buffer
+        ring_buffers
 )
 
 find_package(GTest REQUIRED)
