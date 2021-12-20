@@ -24,25 +24,19 @@ extern "C"
 */
 #define RING_BUFFER_SIZE 128
 
-
-/**
- * Simplifies the use of <tt>struct ring_buffer_t</tt>.
- */
-typedef struct ring_buffer_t ring_buffer_t;
-
 /**
  * Structure which holds a ring buffer.
  * The buffer contains a buffer array
  * as well as metadata for the ring buffer.
  */
-struct ring_buffer_t {
+typedef struct ring_buffer_t {
   /** Buffer memory. */
   uint8_t buffer[RING_BUFFER_SIZE];
   /** Index of tail. */
   size_t tail_index;
   /** Index of head. */
   size_t head_index;
-};
+} ring_buffer_t;
 
 /**
  * Initializes the ring buffer pointed to by <em>buffer</em>.
