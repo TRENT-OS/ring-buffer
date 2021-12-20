@@ -30,7 +30,7 @@ class Test_RingBuffer : public testing::Test
     {
         for(size_t i = 0; i < count; i++)
         {
-            ring_buffer_queue(&ring_buffer, (char)(i % (RING_BUFFER_SIZE - 1)));
+            ring_buffer_queue(&ring_buffer, (uint8_t)(i % (RING_BUFFER_SIZE - 1)));
         }
     }
 
@@ -59,7 +59,10 @@ class Test_RingBuffer_string : public Test_RingBuffer
     {
         Test_RingBuffer::SetUp();
 
-        ring_buffer_queue_arr(&ring_buffer, test_string, sizeof(test_string));
+        ring_buffer_queue_arr(
+            &ring_buffer,
+            (uint8_t*)test_string,
+            sizeof(test_string));
     }
 
     inline static const char test_string[] = "Hello, Ring Buffer!";
@@ -86,7 +89,7 @@ TEST_F(Test_RingBuffer_filled, insert_100_items)
 TEST_F(Test_RingBuffer_filled, peek_3rd)
 {
     const size_t thirdElementIdx = 3;
-    char item;
+    uint8_t item;
 
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
     EXPECT_EQ(1, ring_buffer_peek(&ring_buffer, &item, thirdElementIdx));
@@ -97,7 +100,7 @@ TEST_F(Test_RingBuffer_filled, peek_3rd)
 TEST_F(Test_RingBuffer_filled, peek_out_of_range)
 {
     const size_t outOfRangeIdx = items_count;
-    char item;
+    uint8_t item;
 
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
     EXPECT_EQ(0, ring_buffer_peek(&ring_buffer, &item, outOfRangeIdx));
@@ -109,7 +112,7 @@ TEST_F(Test_RingBuffer_filled, dequeue_all_items)
     EXPECT_FALSE(ring_buffer_is_empty(&ring_buffer));
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
 
-    char item;
+    uint8_t item;
     for(size_t i = 0; ring_buffer_dequeue(&ring_buffer, &item) > 0; ++i)
     {
         EXPECT_EQ(items_count - i - 1, ring_buffer_num_items(&ring_buffer));
@@ -126,7 +129,7 @@ TEST_F(Test_RingBuffer_string, add_string)
     EXPECT_FALSE(ring_buffer_is_empty(&ring_buffer));
     EXPECT_EQ(sizeof(test_string), ring_buffer_num_items(&ring_buffer));
 
-    char item;
+    uint8_t item;
     for(size_t i = 0; ring_buffer_dequeue(&ring_buffer, &item) > 0; ++i)
     {
         EXPECT_EQ(test_string[i], item) << "index " << i;
@@ -144,7 +147,7 @@ TEST_F(Test_RingBuffer_string, dequeue_array_in_2_parts)
 
     EXPECT_EQ(
         half_of_string,
-        ring_buffer_dequeue_arr(&ring_buffer, array, sizeof(array)));
+        ring_buffer_dequeue_arr(&ring_buffer, (uint8_t*)array, sizeof(array)));
 
     EXPECT_EQ(half_of_string, ring_buffer_num_items(&ring_buffer));
     EXPECT_THAT(std::vector<char>(array, array + sizeof(array)),
@@ -152,7 +155,7 @@ TEST_F(Test_RingBuffer_string, dequeue_array_in_2_parts)
 
     EXPECT_EQ(
         half_of_string,
-        ring_buffer_dequeue_arr(&ring_buffer, array, sizeof(array)));
+        ring_buffer_dequeue_arr(&ring_buffer, (uint8_t*)array, sizeof(array)));
 
     EXPECT_THAT(std::vector<char>(array, array + sizeof(array)),
                 ::testing::ElementsAreArray(
@@ -165,7 +168,7 @@ TEST_F(Test_RingBuffer_string, dequeue_array_in_2_parts)
 
     EXPECT_EQ(
         0,
-        ring_buffer_dequeue_arr(&ring_buffer, array, 1));
+        ring_buffer_dequeue_arr(&ring_buffer, (uint8_t*)array, 1));
 }
 
 TEST_F(Test_RingBuffer, empty)
@@ -174,10 +177,10 @@ TEST_F(Test_RingBuffer, empty)
     EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer));
     EXPECT_EQ(0, ring_buffer_num_items(&ring_buffer));
 
-    char item;
+    uint8_t item;
     EXPECT_EQ(
         0,
-        ring_buffer_dequeue_arr(&ring_buffer, &item, sizeof(item)));
+        ring_buffer_dequeue_arr(&ring_buffer, &item, 1));
 }
 
 TEST_F(Test_RingBuffer, overfill_buffer)
@@ -193,7 +196,7 @@ TEST_F(Test_RingBuffer, overfill_buffer)
 
     EXPECT_TRUE(ring_buffer_is_full(&ring_buffer));
 
-    char item;
+    uint8_t item;
     for(size_t i = 111; ring_buffer_dequeue(&ring_buffer, &item) > 0; ++i)
     {
         ASSERT_EQ((i % (RING_BUFFER_SIZE - 1)), item);
@@ -212,7 +215,7 @@ TEST_F(Test_RingBuffer_full, head_chases_tail)
     {
         for(size_t i = 0; i < (RING_BUFFER_SIZE - 1); i++)
         {
-            char item;
+            uint8_t item;
             ASSERT_TRUE(ring_buffer_dequeue(&ring_buffer, &item));
             ASSERT_EQ(i, item);
             ring_buffer_queue(&ring_buffer, i);
@@ -231,7 +234,7 @@ TEST_F(Test_RingBuffer, tail_chases_head)
         {
             ring_buffer_queue(&ring_buffer, i);
 
-            char item;
+            uint8_t item;
             ASSERT_TRUE(ring_buffer_dequeue(&ring_buffer, &item));
             ASSERT_EQ(i, item);
         }
@@ -269,7 +272,7 @@ TEST_F(Test_RingBuffer_full, head_chases_tail_concurrently)
         {
             for(size_t i = 0; i < iterations; i++)
             {
-                char item;
+                uint8_t item;
                 if(ring_buffer_dequeue(&ring_buffer, &item))
                 {
                     EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
@@ -321,7 +324,7 @@ TEST_F(Test_RingBuffer, tail_chases_head_concurrently)
         {
             for(size_t i = 0; i < iterations; i++)
             {
-                char item;
+                uint8_t item;
                 if(ring_buffer_dequeue(&ring_buffer, &item))
                 {
                     EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
