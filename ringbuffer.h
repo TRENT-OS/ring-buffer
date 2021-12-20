@@ -53,10 +53,20 @@ void ring_buffer_init(ring_buffer_t *buffer);
 
 /**
  * Adds a byte to a ring buffer.
+ *
  * @param buffer The buffer in which the data should be placed.
  * @param data The byte to place.
  */
 void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data);
+
+/**
+ * Adds a byte to a ring buffer only if there is enough space.
+ *
+ * @param buffer The buffer in which the data should be placed.
+ * @param data The byte to place.
+ * @return 1 if data was written; 0 otherwise.
+ */
+size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data);
 
 /**
  * Adds an array of bytes to a ring buffer.

@@ -76,9 +76,10 @@ class Test_RingBuffer_full : public Test_RingBuffer
     {
         Test_RingBuffer::SetUp();
 
-        const size_t ringBufferMax = (RING_BUFFER_SIZE - 1);
         fillRingBuffer(ringBufferMax);
     }
+
+    inline static const size_t ringBufferMax = (RING_BUFFER_SIZE - 1);
 };
 
 TEST_F(Test_RingBuffer_filled, insert_100_items)
@@ -223,6 +224,25 @@ TEST_F(Test_RingBuffer_full, head_chases_tail)
     }
 }
 
+TEST_F(Test_RingBuffer, no_overwrite)
+{
+    EXPECT_EQ(1, ring_buffer_queue_no_overwrite(&ring_buffer, 42));
+    EXPECT_EQ(1, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer_filled, no_overwrite)
+{
+    EXPECT_EQ(1, ring_buffer_queue_no_overwrite(&ring_buffer, 42));
+}
+
+TEST_F(Test_RingBuffer_full, no_overwrite)
+{
+    EXPECT_EQ(ringBufferMax, ring_buffer_num_items(&ring_buffer));
+
+    EXPECT_EQ(0, ring_buffer_queue_no_overwrite(&ring_buffer, 42));
+    EXPECT_EQ(ringBufferMax, ring_buffer_num_items(&ring_buffer));
+}
+
 TEST_F(Test_RingBuffer, tail_chases_head)
 {
     EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer));
@@ -252,16 +272,12 @@ TEST_F(Test_RingBuffer_full, head_chases_tail_concurrently)
         {
             for(size_t i = (RING_BUFFER_SIZE - 1); i < iterations; i++)
             {
-                if(ring_buffer_is_full(&ring_buffer))
+                if(0 == ring_buffer_queue_no_overwrite(
+                            &ring_buffer,
+                            (uint8_t)(i % (RING_BUFFER_SIZE - 1))))
                 {
                     std::this_thread::yield();
                     --i;
-                }
-                else
-                {
-                    ring_buffer_queue(
-                        &ring_buffer,
-                        (char)(i % (RING_BUFFER_SIZE - 1)));
                 }
             }
         }
@@ -304,16 +320,12 @@ TEST_F(Test_RingBuffer, tail_chases_head_concurrently)
         {
             for(size_t i = 0; i < iterations; i++)
             {
-                if(ring_buffer_is_full(&ring_buffer))
+                if(0 == ring_buffer_queue_no_overwrite(
+                            &ring_buffer,
+                            (uint8_t)(i % (RING_BUFFER_SIZE - 1))))
                 {
                     std::this_thread::yield();
                     --i;
-                }
-                else
-                {
-                    ring_buffer_queue(
-                        &ring_buffer,
-                        (char)(i % (RING_BUFFER_SIZE - 1)));
                 }
             }
         }

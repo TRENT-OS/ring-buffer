@@ -23,6 +23,19 @@ void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data) {
   buffer->head_index = (buffer->head_index + 1) % RING_BUFFER_SIZE;
 }
 
+size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data) {
+  /* Is buffer full? */
+  if(ring_buffer_is_full(buffer)) {
+    return 0;
+  }
+
+  /* Place data in buffer */
+  buffer->buffer[buffer->head_index] = data;
+  buffer->head_index = (buffer->head_index + 1) % RING_BUFFER_SIZE;
+
+  return 1;
+}
+
 void ring_buffer_queue_arr(ring_buffer_t *buffer, const uint8_t *data, size_t size) {
   /* Add bytes; one by one */
   size_t i;
