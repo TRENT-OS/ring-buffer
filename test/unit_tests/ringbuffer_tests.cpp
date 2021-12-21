@@ -17,13 +17,15 @@
 
 using ::testing::ElementsAreArray;
 
+#define RING_BUFFER_SIZE 128
+
 class Test_RingBuffer : public testing::Test
 {
     protected:
 
     void SetUp() override
     {
-        ring_buffer_init(&ring_buffer);
+        ring_buffer_init(&ring_buffer, buffer, RING_BUFFER_SIZE);
     }
 
     void fillRingBuffer(const size_t count)
@@ -35,6 +37,7 @@ class Test_RingBuffer : public testing::Test
     }
 
     ring_buffer_t ring_buffer;
+    uint8_t buffer[RING_BUFFER_SIZE];
 };
 
 class Test_RingBuffer_filled : public Test_RingBuffer

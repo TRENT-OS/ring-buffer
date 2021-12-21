@@ -15,15 +15,6 @@ extern "C"
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H
 
-
-/**
- * The size of a ring buffer.
- * Due to the design only <tt> RING_BUFFER_SIZE-1 </tt> items
- * can be contained in the buffer.
- * The buffer size must be a power of two.
-*/
-#define RING_BUFFER_SIZE 128
-
 /**
  * Structure which holds a ring buffer.
  * The buffer contains a buffer array
@@ -34,16 +25,23 @@ typedef struct ring_buffer_t {
   size_t tail_index;
   /** Index of head. */
   size_t head_index;
+  /** Size of the buffer */
+  size_t size;
   /** Buffer memory. */
-  uint8_t buffer[RING_BUFFER_SIZE];
+  uint8_t* buffer;
 } ring_buffer_t;
 
 /**
  * Initializes the ring buffer pointed to by <em>buffer</em>.
  * This function can also be used to empty/reset the buffer.
- * @param buffer The ring buffer to initialize.
+ * @param ring_buffer The ring buffer to initialize.
+ * @param buffer Pointer to the underlying memory of the ring buffer.
+ * @param buffer_size Size of the buffer
  */
-void ring_buffer_init(ring_buffer_t *buffer);
+void ring_buffer_init(
+    ring_buffer_t *ring_buffer,
+    void* buffer,
+    size_t buffer_size);
 
 /**
  * Adds a byte to a ring buffer.
@@ -111,7 +109,7 @@ inline bool ring_buffer_is_empty(ring_buffer_t *buffer) {
  * @return 1 if full; 0 otherwise.
  */
 inline bool ring_buffer_is_full(ring_buffer_t *buffer) {
-  return ((buffer->head_index + 1) % RING_BUFFER_SIZE) == buffer->tail_index;
+  return ((buffer->head_index + 1) % buffer->size) == buffer->tail_index;
 }
 
 /**
@@ -122,7 +120,7 @@ inline bool ring_buffer_is_full(ring_buffer_t *buffer) {
 inline size_t ring_buffer_num_items(ring_buffer_t *buffer) {
     return (buffer->head_index >= buffer->tail_index)
             ? buffer->head_index - buffer->tail_index
-            : RING_BUFFER_SIZE - buffer->tail_index + buffer->head_index;
+            : buffer->size - buffer->tail_index + buffer->head_index;
 }
 
 #endif /* RINGBUFFER_H */

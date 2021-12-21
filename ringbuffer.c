@@ -5,9 +5,15 @@
  * Implementation of ring buffer functions.
  */
 
-void ring_buffer_init(ring_buffer_t *buffer) {
-  buffer->tail_index = 0;
-  buffer->head_index = 0;
+void ring_buffer_init(
+    ring_buffer_t *ring_buffer,
+    void* buffer,
+    size_t buffer_size)
+{
+    ring_buffer->tail_index = 0;
+    ring_buffer->head_index = 0;
+    ring_buffer->buffer = buffer;
+    ring_buffer->size = buffer_size;
 }
 
 void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data) {
@@ -15,12 +21,12 @@ void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data) {
   if(ring_buffer_is_full(buffer)) {
     /* Is going to overwrite the oldest byte */
     /* Increase tail index */
-    buffer->tail_index = (buffer->tail_index + 1) % RING_BUFFER_SIZE;
+    buffer->tail_index = (buffer->tail_index + 1) % buffer->size;
   }
 
   /* Place data in buffer */
   buffer->buffer[buffer->head_index] = data;
-  buffer->head_index = (buffer->head_index + 1) % RING_BUFFER_SIZE;
+  buffer->head_index = (buffer->head_index + 1) % buffer->size;
 }
 
 size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data) {
@@ -31,7 +37,7 @@ size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data) {
 
   /* Place data in buffer */
   buffer->buffer[buffer->head_index] = data;
-  buffer->head_index = (buffer->head_index + 1) % RING_BUFFER_SIZE;
+  buffer->head_index = (buffer->head_index + 1) % buffer->size;
 
   return 1;
 }
@@ -51,7 +57,7 @@ size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data) {
   }
 
   *data = buffer->buffer[buffer->tail_index];
-  buffer->tail_index = (buffer->tail_index + 1) % RING_BUFFER_SIZE;
+  buffer->tail_index = (buffer->tail_index + 1) % buffer->size;
   return 1;
 }
 
@@ -77,7 +83,7 @@ size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index) {
   }
 
   /* Add index to pointer */
-  size_t data_index = (buffer->tail_index + index) % RING_BUFFER_SIZE;
+  size_t data_index = (buffer->tail_index + index) % buffer->size;
   *data = buffer->buffer[data_index];
   return 1;
 }
