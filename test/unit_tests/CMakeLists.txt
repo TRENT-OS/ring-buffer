@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 #-------------------------------------------------------------------------------
 add_executable("${PROJECT_NAME}_test"
-    ringbuffer_tests.cpp
+    ringbuffer_tests_uint8_t.cpp
 )
 
 target_link_libraries("${PROJECT_NAME}_test"
