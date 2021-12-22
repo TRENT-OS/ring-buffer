@@ -18,6 +18,8 @@
 using ::testing::ElementsAreArray;
 
 #define RING_BUFFER_SIZE 128
+// One slot is wasted since this is a "one look ahead" type of a ring buffer.
+#define RING_BUFFER_AVAILABLE_SLOTS (RING_BUFFER_SIZE - 1)
 
 class Test_RingBuffer : public testing::Test
 {
@@ -32,7 +34,9 @@ class Test_RingBuffer : public testing::Test
     {
         for(size_t i = 0; i < count; i++)
         {
-            ring_buffer_queue(&ring_buffer, (uint8_t)(i % (RING_BUFFER_SIZE - 1)));
+            ring_buffer_queue(
+                &ring_buffer,
+                (uint8_t)(i % RING_BUFFER_AVAILABLE_SLOTS));
         }
     }
 
@@ -82,12 +86,15 @@ class Test_RingBuffer_full : public Test_RingBuffer
         fillRingBuffer(ringBufferMax);
     }
 
-    inline static const size_t ringBufferMax = (RING_BUFFER_SIZE - 1);
+    inline static const size_t ringBufferMax = RING_BUFFER_AVAILABLE_SLOTS;
 };
 
 TEST_F(Test_RingBuffer_filled, insert_100_items)
 {
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(
+        (RING_BUFFER_AVAILABLE_SLOTS - items_count),
+        ring_buffer_available(&ring_buffer));
 }
 
 TEST_F(Test_RingBuffer_filled, peek_3rd)
@@ -187,15 +194,47 @@ TEST_F(Test_RingBuffer, empty)
         ring_buffer_dequeue_arr(&ring_buffer, &item, 1));
 }
 
+TEST_F(Test_RingBuffer, available)
+{
+    const size_t available_slots = ring_buffer_available(&ring_buffer);
+    EXPECT_EQ(RING_BUFFER_AVAILABLE_SLOTS, available_slots);
+
+    for(size_t i = 1; i <= available_slots; ++i)
+    {
+        ring_buffer_queue(&ring_buffer, (uint8_t)i);
+        ASSERT_EQ(available_slots - i, ring_buffer_available(&ring_buffer));
+    }
+
+    EXPECT_EQ(0, ring_buffer_available(&ring_buffer));
+    EXPECT_EQ(available_slots, ring_buffer_num_items(&ring_buffer));
+
+    EXPECT_TRUE(ring_buffer_is_full(&ring_buffer));
+    EXPECT_FALSE(ring_buffer_is_empty(&ring_buffer));
+
+    for(size_t i = 0; i < available_slots; ++i)
+    {
+        ASSERT_EQ(i, ring_buffer_available(&ring_buffer));
+
+        uint8_t item;
+        ASSERT_EQ(1, ring_buffer_dequeue(&ring_buffer, &item));
+    }
+
+    EXPECT_EQ(available_slots, ring_buffer_available(&ring_buffer));
+    EXPECT_EQ(0, ring_buffer_num_items(&ring_buffer));
+
+    EXPECT_FALSE(ring_buffer_is_full(&ring_buffer));
+    EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer));
+}
+
 TEST_F(Test_RingBuffer, overfill_buffer)
 {
     for(size_t i = 0; i < 1000; i++)
     {
-        ring_buffer_queue(&ring_buffer, (i % (RING_BUFFER_SIZE - 1)));
+        ring_buffer_queue(&ring_buffer, (i % RING_BUFFER_AVAILABLE_SLOTS));
     }
 
     // One slot is always empty for the look ahead.
-    const size_t max_num_items = RING_BUFFER_SIZE - 1;
+    const size_t max_num_items = RING_BUFFER_AVAILABLE_SLOTS;
     EXPECT_EQ(max_num_items, ring_buffer_num_items(&ring_buffer));
 
     EXPECT_TRUE(ring_buffer_is_full(&ring_buffer));
@@ -203,7 +242,7 @@ TEST_F(Test_RingBuffer, overfill_buffer)
     uint8_t item;
     for(size_t i = 111; ring_buffer_dequeue(&ring_buffer, &item) > 0; ++i)
     {
-        ASSERT_EQ((i % (RING_BUFFER_SIZE - 1)), item);
+        ASSERT_EQ((i % RING_BUFFER_AVAILABLE_SLOTS), item);
     }
 
     EXPECT_TRUE(ring_buffer_is_empty(&ring_buffer));
@@ -217,7 +256,7 @@ TEST_F(Test_RingBuffer_full, head_chases_tail)
     // Iterating over the ring twice
     for(size_t j = 0; j < 2; j++)
     {
-        for(size_t i = 0; i < (RING_BUFFER_SIZE - 1); i++)
+        for(size_t i = 0; i < RING_BUFFER_AVAILABLE_SLOTS; i++)
         {
             uint8_t item;
             ASSERT_TRUE(ring_buffer_dequeue(&ring_buffer, &item));
@@ -253,7 +292,7 @@ TEST_F(Test_RingBuffer, tail_chases_head)
     // Iterating over the ring twice
     for(size_t j = 0; j < 2; j++)
     {
-        for(size_t i = 0; i < (RING_BUFFER_SIZE - 1); i++)
+        for(size_t i = 0; i < RING_BUFFER_AVAILABLE_SLOTS; i++)
         {
             ring_buffer_queue(&ring_buffer, i);
 
@@ -273,11 +312,11 @@ TEST_F(Test_RingBuffer_full, head_chases_tail_concurrently)
     std::thread producer
     {[this]
         {
-            for(size_t i = (RING_BUFFER_SIZE - 1); i < iterations; i++)
+            for(size_t i = RING_BUFFER_AVAILABLE_SLOTS; i < iterations; i++)
             {
                 if(0 == ring_buffer_queue_no_overwrite(
                             &ring_buffer,
-                            (uint8_t)(i % (RING_BUFFER_SIZE - 1))))
+                            (uint8_t)(i % RING_BUFFER_AVAILABLE_SLOTS)))
                 {
                     std::this_thread::yield();
                     --i;
@@ -294,7 +333,7 @@ TEST_F(Test_RingBuffer_full, head_chases_tail_concurrently)
                 uint8_t item;
                 if(ring_buffer_dequeue(&ring_buffer, &item))
                 {
-                    EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
+                    EXPECT_EQ(i % RING_BUFFER_AVAILABLE_SLOTS, item);
                 }
                 else
                 {
@@ -325,7 +364,7 @@ TEST_F(Test_RingBuffer, tail_chases_head_concurrently)
             {
                 if(0 == ring_buffer_queue_no_overwrite(
                             &ring_buffer,
-                            (uint8_t)(i % (RING_BUFFER_SIZE - 1))))
+                            (uint8_t)(i % RING_BUFFER_AVAILABLE_SLOTS)))
                 {
                     std::this_thread::yield();
                     --i;
@@ -342,7 +381,7 @@ TEST_F(Test_RingBuffer, tail_chases_head_concurrently)
                 uint8_t item;
                 if(ring_buffer_dequeue(&ring_buffer, &item))
                 {
-                    EXPECT_EQ(i % (RING_BUFFER_SIZE - 1), item);
+                    EXPECT_EQ(i % RING_BUFFER_AVAILABLE_SLOTS, item);
                 }
                 else
                 {

@@ -123,6 +123,16 @@ inline size_t ring_buffer_num_items(ring_buffer_t *buffer) {
             : buffer->size - buffer->tail_index + buffer->head_index;
 }
 
+/**
+ * Returns the amount of available slots.
+ * @param buffer The buffer for which the number of available slots should be
+ *                  returned.
+ * @return The number of items available slots.
+ */
+inline size_t ring_buffer_available(ring_buffer_t *buffer) {
+    return (buffer->size - 1) - ring_buffer_num_items(buffer);
+}
+
 #endif /* RINGBUFFER_H */
 
 #ifdef __cplusplus
