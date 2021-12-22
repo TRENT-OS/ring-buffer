@@ -14,13 +14,11 @@ project(Ring-Buffer C)
 #-------------------------------------------------------------------------------
 # LIBRARY
 #-------------------------------------------------------------------------------
-add_library(${PROJECT_NAME}
-    "ringbuffer.c"
-)
+add_library(${PROJECT_NAME} INTERFACE)
 
 target_include_directories(
     ${PROJECT_NAME}
-    PUBLIC "."
+    INTERFACE "."
 )
 
 #-------------------------------------------------------------------------------

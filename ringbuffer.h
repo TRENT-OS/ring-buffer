@@ -38,6 +38,7 @@ typedef struct ring_buffer_t {
  * @param buffer Pointer to the underlying memory of the ring buffer.
  * @param buffer_size Size of the buffer
  */
+static
 void ring_buffer_init(
     ring_buffer_t *ring_buffer,
     void* buffer,
@@ -49,6 +50,7 @@ void ring_buffer_init(
  * @param buffer The buffer in which the data should be placed.
  * @param data The byte to place.
  */
+static
 void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data);
 
 /**
@@ -58,6 +60,7 @@ void ring_buffer_queue(ring_buffer_t *buffer, uint8_t data);
  * @param data The byte to place.
  * @return 1 if data was written; 0 otherwise.
  */
+static
 size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data);
 
 /**
@@ -66,6 +69,7 @@ size_t ring_buffer_queue_no_overwrite(ring_buffer_t *buffer, uint8_t data);
  * @param data A pointer to the array of bytes to place in the queue.
  * @param size The size of the array.
  */
+static
 void ring_buffer_queue_arr(ring_buffer_t *buffer, const void *data, size_t size);
 
 /**
@@ -74,6 +78,7 @@ void ring_buffer_queue_arr(ring_buffer_t *buffer, const void *data, size_t size)
  * @param data A pointer to the location at which the data should be placed.
  * @return 1 if data was returned; 0 otherwise.
  */
+static
 size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data);
 
 /**
@@ -83,6 +88,7 @@ size_t ring_buffer_dequeue(ring_buffer_t *buffer, uint8_t *data);
  * @param len The maximum number of bytes to return.
  * @return The number of bytes returned.
  */
+static
 size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, void *data, size_t len);
 
 /**
@@ -92,6 +98,7 @@ size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, void *data, size_t len);
  * @param index The index to peek.
  * @return 1 if data was returned; 0 otherwise.
  */
+static
 size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index);
 
 /**
@@ -103,8 +110,8 @@ size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index);
  * @param start_idx Index of the first element to peek.
  * @return The number of bytes returned.
  */
-size_t
-ring_buffer_peek_arr(
+static
+size_t ring_buffer_peek_arr(
     ring_buffer_t *buffer,
     void *data,
     size_t len,
@@ -115,6 +122,7 @@ ring_buffer_peek_arr(
  * @param buffer The buffer from which the element should be popped.
  * @return 1 if element was popped; 0 otherwise.
  */
+static
 size_t ring_buffer_pop(ring_buffer_t *buffer);
 
 /**
@@ -123,6 +131,7 @@ size_t ring_buffer_pop(ring_buffer_t *buffer);
  * @param len The maximum number of elements to be popped.
  * @return 1 if element was popped; 0 otherwise.
  */
+static
 size_t ring_buffer_pop_arr(ring_buffer_t *buffer, size_t len);
 
 /**
@@ -130,6 +139,7 @@ size_t ring_buffer_pop_arr(ring_buffer_t *buffer, size_t len);
  * @param buffer The buffer for which it should be returned whether it is empty.
  * @return 1 if empty; 0 otherwise.
  */
+static
 inline bool ring_buffer_is_empty(ring_buffer_t *buffer) {
   return (buffer->head_index == buffer->tail_index);
 }
@@ -139,6 +149,7 @@ inline bool ring_buffer_is_empty(ring_buffer_t *buffer) {
  * @param buffer The buffer for which it should be returned whether it is full.
  * @return 1 if full; 0 otherwise.
  */
+static
 inline bool ring_buffer_is_full(ring_buffer_t *buffer) {
   return ((buffer->head_index + 1) % buffer->size) == buffer->tail_index;
 }
@@ -148,6 +159,7 @@ inline bool ring_buffer_is_full(ring_buffer_t *buffer) {
  * @param buffer The buffer for which the number of items should be returned.
  * @return The number of items in the ring buffer.
  */
+static
 inline size_t ring_buffer_num_items(ring_buffer_t *buffer) {
     return (buffer->head_index >= buffer->tail_index)
             ? buffer->head_index - buffer->tail_index
@@ -160,9 +172,12 @@ inline size_t ring_buffer_num_items(ring_buffer_t *buffer) {
  *                  returned.
  * @return The number of items available slots.
  */
+static
 inline size_t ring_buffer_available(ring_buffer_t *buffer) {
     return (buffer->size - 1) - ring_buffer_num_items(buffer);
 }
+
+#include "ringbuffer.impl.h"
 
 #endif /* RINGBUFFER_H */
 
