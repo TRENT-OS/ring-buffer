@@ -118,6 +118,72 @@ TEST_F(Test_RingBuffer_filled, peek_out_of_range)
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
 }
 
+TEST_F(Test_RingBuffer_filled, peek_arr)
+{
+    const size_t thirdElementIdx = 3;
+    const size_t elementsCount = items_count / 2;
+    uint8_t elements[elementsCount];
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(
+        elementsCount,
+        ring_buffer_peek_arr(
+            &ring_buffer,
+            elements,
+            elementsCount,
+            thirdElementIdx));
+
+    for(size_t i = 0; i < elementsCount; ++i)
+    {
+        EXPECT_EQ(i + thirdElementIdx, elements[i]);
+    }
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer_filled, peek_arr_too_many)
+{
+    const size_t thirdElementIdx = 3;
+    const size_t expectedElementsCount = items_count - thirdElementIdx;
+    const size_t elementsCount = items_count * 2;
+    uint8_t elements[elementsCount];
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(
+        expectedElementsCount,
+        ring_buffer_peek_arr(
+            &ring_buffer,
+            elements,
+            elementsCount,
+            thirdElementIdx));
+
+    for(size_t i = 0; i < expectedElementsCount; ++i)
+    {
+        EXPECT_EQ(i + thirdElementIdx, elements[i]);
+    }
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer_filled, peek_arr_out_of_range)
+{
+    const size_t outOfRangeIdx = items_count;
+    const size_t expectedElementsCount = 0;
+    const size_t elementsCount = items_count / 2;
+    uint8_t elements[elementsCount];
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(
+        0,
+        ring_buffer_peek_arr(
+            &ring_buffer,
+            elements,
+            elementsCount,
+            outOfRangeIdx));
+
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+}
+
 TEST_F(Test_RingBuffer_filled, dequeue_all_items)
 {
     EXPECT_FALSE(ring_buffer_is_empty(&ring_buffer));

@@ -95,6 +95,22 @@ size_t ring_buffer_dequeue_arr(ring_buffer_t *buffer, void *data, size_t len);
 size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index);
 
 /**
+ * Peeks the <em>len</em> elements in a ring buffer without removing them,
+ * starting at a given index.
+ * @param buffer The buffer from which the data should be returned.
+ * @param data A pointer to the array at which the data should be placed.
+ * @param len The maximum number of bytes to return.
+ * @param start_idx Index of the first element to peek.
+ * @return The number of bytes returned.
+ */
+size_t
+ring_buffer_peek_arr(
+    ring_buffer_t *buffer,
+    void *data,
+    size_t len,
+    size_t start_idx);
+
+/**
  * Returns whether a ring buffer is empty.
  * @param buffer The buffer for which it should be returned whether it is empty.
  * @return 1 if empty; 0 otherwise.

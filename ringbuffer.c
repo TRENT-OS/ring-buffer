@@ -88,6 +88,34 @@ size_t ring_buffer_peek(ring_buffer_t *buffer, uint8_t *data, size_t index) {
   return 1;
 }
 
+size_t
+ring_buffer_peek_arr(
+    ring_buffer_t *buffer,
+    void *data,
+    size_t len,
+    size_t start_idx)
+{
+  if(ring_buffer_is_empty(buffer)) {
+    /* No items */
+    return 0u;
+  }
+
+  uint8_t* destination = data;
+  size_t rslt = 0u;
+  for(size_t index = start_idx; index < (start_idx + len); ++index)
+  {
+    if(0 == ring_buffer_peek(buffer, destination, index))
+    {
+        break;
+    }
+
+    ++destination;
+    ++rslt;
+  }
+
+  return rslt;
+}
+
 extern inline bool ring_buffer_is_empty(ring_buffer_t *buffer);
 extern inline bool ring_buffer_is_full(ring_buffer_t *buffer);
 extern inline size_t ring_buffer_num_items(ring_buffer_t *buffer);
