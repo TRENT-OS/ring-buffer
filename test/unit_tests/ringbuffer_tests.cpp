@@ -184,6 +184,35 @@ TEST_F(Test_RingBuffer_filled, peek_arr_out_of_range)
     EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
 }
 
+TEST_F(Test_RingBuffer_filled, pop)
+{
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(1, ring_buffer_pop(&ring_buffer));
+    EXPECT_EQ(items_count - 1, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer_full, pop)
+{
+    EXPECT_EQ(ringBufferMax, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(1, ring_buffer_pop(&ring_buffer));
+    EXPECT_EQ(ringBufferMax - 1, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer, pop_empty)
+{
+    EXPECT_EQ(0, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(0, ring_buffer_pop(&ring_buffer));
+    EXPECT_EQ(0, ring_buffer_num_items(&ring_buffer));
+}
+
+TEST_F(Test_RingBuffer_filled, pop_arr)
+{
+    const size_t poppedCount = 42;
+    EXPECT_EQ(items_count, ring_buffer_num_items(&ring_buffer));
+    EXPECT_EQ(poppedCount, ring_buffer_pop_arr(&ring_buffer, poppedCount));
+    EXPECT_EQ(items_count - poppedCount, ring_buffer_num_items(&ring_buffer));
+}
+
 TEST_F(Test_RingBuffer_filled, dequeue_all_items)
 {
     EXPECT_FALSE(ring_buffer_is_empty(&ring_buffer));

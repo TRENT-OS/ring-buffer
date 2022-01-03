@@ -111,6 +111,21 @@ ring_buffer_peek_arr(
     size_t start_idx);
 
 /**
+ * Removes the next element in the queue.
+ * @param buffer The buffer from which the element should be popped.
+ * @return 1 if element was popped; 0 otherwise.
+ */
+size_t ring_buffer_pop(ring_buffer_t *buffer);
+
+/**
+ * Removes the given number of elements in the queue.
+ * @param buffer The buffer from which the elements should be popped.
+ * @param len The maximum number of elements to be popped.
+ * @return 1 if element was popped; 0 otherwise.
+ */
+size_t ring_buffer_pop_arr(ring_buffer_t *buffer, size_t len);
+
+/**
  * Returns whether a ring buffer is empty.
  * @param buffer The buffer for which it should be returned whether it is empty.
  * @return 1 if empty; 0 otherwise.

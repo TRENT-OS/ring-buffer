@@ -116,6 +116,36 @@ ring_buffer_peek_arr(
   return rslt;
 }
 
+size_t ring_buffer_pop(ring_buffer_t *buffer)
+{
+  if(ring_buffer_is_empty(buffer)) {
+    /* No items */
+    return 0;
+  }
+
+  buffer->tail_index = (buffer->tail_index + 1) % buffer->size;
+
+  return 1;
+}
+
+size_t ring_buffer_pop_arr(ring_buffer_t *buffer, size_t len)
+{
+  size_t poppedCount = 0;
+
+  for(size_t i = 0; i < len; ++i)
+  {
+    if(0 == ring_buffer_pop(buffer))
+    {
+        break;
+    }
+
+    ++poppedCount;
+  }
+
+  return poppedCount;
+}
+
+
 extern inline bool ring_buffer_is_empty(ring_buffer_t *buffer);
 extern inline bool ring_buffer_is_full(ring_buffer_t *buffer);
 extern inline size_t ring_buffer_num_items(ring_buffer_t *buffer);
